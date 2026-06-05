@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  /* ── Date inputs ─────────────────────────────────────────────── */
+  input[type="date"] {
+    color-scheme: light;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.45;
+    padding: 2px;
+    border-radius: 4px;
+    transition: opacity 0.15s, background-color 0.15s;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 0.9;
+    background-color: #e0e7ff;
+  }
+
+  /* ── Select options (Chromium) ───────────────────────────────── */
+  select option {
+    background-color: #ffffff;
+    color: #1f2937;
+    padding: 6px 12px;
+  }
+
+  select option:hover,
+  select option:checked {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+  }
+}
