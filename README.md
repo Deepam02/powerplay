@@ -127,3 +127,4 @@ All responses follow `{ success: boolean, data: any, meta?: { page, limit, total
 3. Currency is displayed in Indian Rupees (Rs.) since the dataset uses Indian company names.
 4. The frontend Vite dev server runs in the Docker container; hot reload works via the `./frontend/src` volume mount.
 5. Tax/total values in the seed JSON are not used; the backend always recomputes them.
+6. This application is intended for use on laptop or desktop screens and is not optimized for mobile devices.
