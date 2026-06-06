@@ -138,18 +138,27 @@ export async function getInvoiceById(id: string) {
 }
 
 export async function createInvoice(body: InvoiceBody) {
-  const invoiceId = 'INV-' + Math.floor(1000000 + Math.random() * 9000000).toString();
-  const invoice = new Invoice({
-    invoiceId,
-    customerId: new mongoose.Types.ObjectId(body.customerId),
-    amount: body.amount,
-    taxRate: body.taxRate,
-    status: body.status,
-    issueDate: new Date(body.issueDate),
-    dueDate: new Date(body.dueDate),
-  });
-  await invoice.save();
-  return invoice.populate('customerId', 'name company');
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const invoiceId = 'INV-' + Math.floor(1000000 + Math.random() * 9000000).toString();
+    try {
+      const invoice = new Invoice({
+        invoiceId,
+        customerId: new mongoose.Types.ObjectId(body.customerId),
+        amount: body.amount,
+        taxRate: body.taxRate,
+        status: body.status,
+        issueDate: new Date(body.issueDate),
+        dueDate: new Date(body.dueDate),
+      });
+      await invoice.save();
+      return invoice.populate('customerId', 'name company');
+    } catch (err: unknown) {
+      const isDuplicateKey = typeof err === 'object' && err !== null && (err as { code?: number }).code === 11000;
+      if (isDuplicateKey && attempt < 4) continue;
+      throw err;
+    }
+  }
+  throw new Error('Failed to generate a unique invoice ID after 5 attempts');
 }
 
 export async function updateInvoice(id: string, body: InvoiceBody) {

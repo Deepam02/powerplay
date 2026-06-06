@@ -122,7 +122,7 @@ All responses follow `{ success: boolean, data: any, meta?: { page, limit, total
 
 ## Assumptions
 
-1. `invoiceId` for new invoices created via the form is auto-generated as `INV-` + 7 random digits.
+1. `invoiceId` for new invoices is auto-generated as `INV-` + 7 random digits. On a collision, the server retries up to 5 times with a new ID before failing.
 2. The seed reads from `./backend/seed-data.json` (baked into the Docker image via `COPY`). The root-level `seed-data.json` is kept as a reference copy but not used by any script.
 3. Currency is displayed in Indian Rupees (Rs.) since the dataset uses Indian company names.
 4. The frontend Vite dev server runs in the Docker container; hot reload works via the `./frontend/src` volume mount.

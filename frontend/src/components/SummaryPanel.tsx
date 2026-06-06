@@ -49,28 +49,37 @@ export function SummaryPanel({ open, onClose }: Props) {
 
               {/* Top customers bar chart */}
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-4">Top customers by value</h3>
-                <div className="space-y-3">
-                  {data.top5Customers.map((c) => {
+                <h3 className="text-sm font-semibold text-gray-700 mb-5">Top customers by value</h3>
+                <div className="space-y-4">
+                  {(() => {
                     const max = Math.max(...data.top5Customers.map((x) => x.totalBilled));
-                    const pct = max === 0 ? 0 : (c.totalBilled / max) * 100;
-                    return (
-                      <div key={c._id} className="flex items-center gap-3">
-                        <span className="text-sm text-gray-600 w-32 flex-shrink-0 truncate">
-                          {c.customerName}
-                        </span>
-                        <div className="flex-1 bg-stone-100 rounded-full h-3 overflow-hidden">
-                          <div
-                            className="bg-blue-200 h-full rounded-full transition-all"
-                            style={{ width: `${pct}%` }}
-                          />
+                    return data.top5Customers.map((c, i) => {
+                      const pct = max === 0 ? 0 : (c.totalBilled / max) * 86;
+                      return (
+                        <div key={c._id} className="flex items-center gap-4">
+                          {/* Rank */}
+                          <span className="text-xs font-semibold text-gray-400 w-4 flex-shrink-0 text-right">
+                            {i + 1}
+                          </span>
+                          {/* Name */}
+                          <span className="text-sm text-gray-700 font-medium w-36 flex-shrink-0 truncate">
+                            {c.customerName}
+                          </span>
+                          {/* Bar track */}
+                          <div className="flex-1 bg-stone-100 rounded-full h-4 overflow-hidden">
+                            <div
+                              className="bg-blue-300 h-full rounded-full transition-all duration-500"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          {/* Value */}
+                          <span className="text-sm font-semibold text-gray-700 w-24 text-right flex-shrink-0">
+                            {fmt(c.totalBilled)}
+                          </span>
                         </div>
-                        <span className="text-xs text-gray-500 w-20 text-right flex-shrink-0">
-                          {fmt(c.totalBilled)}
-                        </span>
-                      </div>
-                    );
-                  })}
+                      );
+                    });
+                  })()}
                 </div>
               </div>
             </>
