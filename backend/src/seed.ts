@@ -21,9 +21,8 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-export async function seed(mongoUri: string): Promise<void> {
-  await mongoose.connect(mongoUri);
-
+// runSeed assumes DB is already connected (used by the HTTP endpoint)
+export async function runSeed(): Promise<{ customers: number; invoices: number }> {
   const dataPath = path.join(__dirname, '..', 'seed-data.json');
   const raw = fs.readFileSync(dataPath, 'utf-8');
   const records: SeedRecord[] = JSON.parse(raw);
@@ -36,7 +35,6 @@ export async function seed(mongoUri: string): Promise<void> {
   }
 
   const customerIdMap = new Map<string, mongoose.Types.ObjectId>();
-
   for (const [name, company] of uniqueCustomers) {
     const result = await Customer.findOneAndUpdate(
       { name },
@@ -74,11 +72,17 @@ export async function seed(mongoUri: string): Promise<void> {
   }
 
   console.log(`Seeded ${uniqueCustomers.size} customers, ${invoiceCount} invoices`);
-  await mongoose.disconnect();
+  return { customers: uniqueCustomers.size, invoices: invoiceCount };
 }
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/invoices';
-seed(MONGO_URI).catch((err) => {
-  console.error('Seed failed:', err);
-  process.exit(1);
-});
+// CLI entry point — connects its own DB session
+if (require.main === module) {
+  const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/invoices';
+  mongoose.connect(MONGO_URI)
+    .then(() => runSeed())
+    .then(() => mongoose.disconnect())
+    .catch((err) => {
+      console.error('Seed failed:', err);
+      process.exit(1);
+    });
+}
