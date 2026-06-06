@@ -2,33 +2,30 @@
 
 A full-stack B2B invoice management application built with React, Node.js/Express, and MongoDB.
 
+**Live demo:** https://powerplay-assignment.deepam.dev/
+
 ---
 
 ## Prerequisites
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) 24+
-
-For local development without Docker:
-- Node.js 20+
-- MongoDB 7 (running locally on port 27017)
+- Docker Desktop running
+- Ports 5000, 5173, and 27017 must be free
 
 ---
 
-## Quick Start (Docker)
+## Quick Start
 
 ```bash
-# 1. Build and start all three services (mongo, api, frontend)
-docker compose up --build
+# Build and start all three services (mongo, api, frontend)
+docker compose up --build -d
 
-# 2. In a new terminal, seed the database (first time only)
+# Seed the database (first time only — safe to re-run)
 docker compose exec api npm run seed
-
-# 3. Open the app
-# Frontend: http://localhost:5173
-# API:      http://localhost:5000
 ```
 
-The seed step is idempotent — running it multiple times produces no duplicates.
+Frontend available at http://localhost:5173
+
+The seed step is idempotent, running it multiple times produces no duplicates.
 
 ---
 
@@ -36,34 +33,6 @@ The seed step is idempotent — running it multiple times produces no duplicates
 
 ```bash
 docker compose exec api npm test
-```
-
-Or locally from the `backend/` directory:
-
-```bash
-cd backend
-npm install
-npm test
-```
-
----
-
-## Local Development (without Docker)
-
-```bash
-# Terminal 1 – backend
-cd backend
-npm install
-MONGO_URI=mongodb://localhost:27017/invoices npm run dev
-
-# Terminal 2 – seed data
-cd backend
-MONGO_URI=mongodb://localhost:27017/invoices npm run seed
-
-# Terminal 3 – frontend
-cd frontend
-npm install
-VITE_API_URL=http://localhost:5000 npm run dev
 ```
 
 ---
@@ -113,14 +82,14 @@ Storing customers in a separate collection and referencing them via `customerId`
 | Index | Purpose |
 |-------|---------|
 | `invoiceId` (unique) | Fast lookup by invoice ID; enforces uniqueness |
-| `{ status, issueDate }` | Combined filter — most common query pattern |
+| `{ status, issueDate }` | Combined filter, most common query pattern |
 | `{ customerId }` | Customer profile page: fetch all invoices for a customer |
 | `{ amount }` | Sorting by amount |
 | `{ dueDate }` | Sorting and filtering by due date |
 
 ### Pre-save Hook
 
-`tax` and `total` are computed server-side in the Mongoose `pre('save')` hook. The frontend never sends these values — they are always derived from `amount × taxRate`. This prevents data inconsistency if a client sends stale or incorrect computed values.
+`tax` and `total` are computed server-side in the Mongoose `pre('save')` hook. The frontend never sends these values; they are always derived from `amount x taxRate`. This prevents data inconsistency if a client sends stale or incorrect computed values.
 
 ### Seed Script
 
@@ -155,6 +124,6 @@ All responses follow `{ success: boolean, data: any, meta?: { page, limit, total
 
 1. `invoiceId` for new invoices created via the form is auto-generated as `INV-` + 7 random digits.
 2. The seed reads from `./backend/seed-data.json` (baked into the Docker image via `COPY`). The root-level `seed-data.json` is kept as a reference copy but not used by any script.
-3. Currency is displayed in Indian Rupees (₹) since the dataset uses Indian company names.
+3. Currency is displayed in Indian Rupees (Rs.) since the dataset uses Indian company names.
 4. The frontend Vite dev server runs in the Docker container; hot reload works via the `./frontend/src` volume mount.
-5. Tax/total values in the seed JSON are not used — the backend always recomputes them.
+5. Tax/total values in the seed JSON are not used; the backend always recomputes them.
